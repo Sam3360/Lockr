@@ -6,7 +6,8 @@ export const KDF_DEFAULTS = { memoryCost: 65536, timeCost: 3, parallelism: 1, ha
 export const SALT_BYTES = 16;
 export const NONCE_BYTES = 24;
 
-export async function deriveKey(password: string, salt: Buffer, params = KDF_DEFAULTS): Promise<Buffer> {
+export interface KdfParams { memoryCost: number; timeCost: number; parallelism: number; hashLength: number; }
+export async function deriveKey(password: string, salt: Buffer, params: KdfParams = KDF_DEFAULTS): Promise<Buffer> {
   return Buffer.from(await argon2.hash(password, { type: argon2.argon2id, salt, raw: true, ...params }));
 }
 export function randomSalt(): Buffer { return randomBytes(SALT_BYTES); }
