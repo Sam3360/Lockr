@@ -37,7 +37,7 @@ Passwords are never accepted as command-line arguments. The generator uses crypt
 
 ## Encryption and storage
 
-The complete credential payload—including credential metadata—is JSON-encrypted using XChaCha20-Poly1305. A unique 16-byte salt and Argon2id parameters are stored in the outer vault envelope; Argon2id (64 MiB memory, 3 iterations, parallelism 1) derives a 32-byte encryption key from the master password. Each encryption receives a new 24-byte nonce. The vault includes an authenticated verification value, so an incorrect password, tampering, and corruption fail safely.
+The complete credential payload—including credential metadata—is JSON-encrypted using XChaCha20-Poly1305. A unique 16-byte salt and Argon2id parameters are stored in the outer vault envelope; Argon2id (64 MiB memory, 3 iterations, parallelism 1) derives a 32-byte encryption key from the master password. v1 accepts only those documented KDF parameters, preventing a modified vault from silently weakening them or requesting an unsafe amount of work. Each encryption receives a new 24-byte nonce. The vault includes an authenticated verification value, so an incorrect password, tampering, and corruption fail safely.
 
 Vault files are versioned and written atomically with restrictive permissions where the platform supports them. Lockr refuses vault-file symbolic links. Default locations are `%APPDATA%\\Lockr` on Windows, `~/Library/Application Support/Lockr` on macOS, and `$XDG_DATA_HOME/lockr` (or `~/.local/share/lockr`) on Linux. Set `LOCKR_DATA_DIR` for a local test or a deliberately chosen location.
 

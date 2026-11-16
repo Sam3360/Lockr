@@ -19,7 +19,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "tsx src/index.ts",
-    "test": "tsx --test tests/**/*.test.ts",
+    "test": "tsc -p tsconfig.test.json && node --test .test-dist/tests/crypto.test.js .test-dist/tests/master-password.test.js .test-dist/tests/vault.test.js",
     "check": "tsc --noEmit",
     "prepublishOnly": "npm run check && npm test && npm run build"
   },
