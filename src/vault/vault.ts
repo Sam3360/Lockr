@@ -20,7 +20,9 @@ export class Vault {
   }
   static async unlock(password: string, path = vaultPath()): Promise<Vault> {
     if (!await existsSafe(path)) throw errors.noVault(); const file = parseFile(await readSecure(path));
-    const salt = decode(file.kdf.salt), key = await deriveKey(password, salt, file.kdf);
+    const salt = decode(file.kdf.salt);
+    const { memoryCost, timeCost, parallelism, hashLength } = file.kdf;
+    const key = await deriveKey(password, salt, { memoryCost, timeCost, parallelism, hashLength });
     try { const plain = decrypt(key, decode(file.cipher.nonce), decode(file.cipher.ciphertext)); if (!plain) throw errors.auth(); const data = validate(JSON.parse(plain.toString("utf8"))); wipe(plain); return new Vault(path, key, data); } catch (e) { wipe(key); if (e instanceof Error && "code" in e) throw e; throw errors.auth(); }
   }
   private async save(existingSalt?: Buffer): Promise<void> {
