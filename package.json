@@ -1,0 +1,22 @@
+{
+  "name": "lockr",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "dependencies": {
+    "@inquirer/prompts": "^8.1.0",
+    "@stablelib/xchacha20poly1305": "^2.0.1",
+    "argon2": "^0.44.0",
+    "commander": "^14.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}
