@@ -30,6 +30,7 @@ lockr generate --length 24     Generate without storing a password
 lockr backup [path]            Copy the encrypted vault
 lockr restore <backup>         Authenticate, verify, and restore a backup
 lockr lock                     Explain fresh-authentication CLI behavior
+lockr change-master-password   Re-encrypt using a new master password
 ```
 
 Passwords are never accepted as command-line arguments. The generator uses cryptographic randomness and does not save its output.
@@ -44,7 +45,7 @@ Backups are copies of the already encrypted vault; use `lockr restore` so the ba
 
 ## Security limits
 
-The master password is never stored and cannot be recovered. Use a unique, long passphrase. Encryption at rest does not protect against malware, keyloggers, a compromised operating system, or an attacker reading an already-unlocked process. Each CLI invocation asks for the master password; there is no misleading persistent unlocked session, so `lockr lock` has no retained key to clear.
+The master password is never stored and cannot be recovered. Lockr accepts passwords of six to 1,024 characters, including spaces and punctuation, without character-type rules. Setup displays a guidance-only strength indicator and requires confirmation before accepting a weak password. Use a unique, long passphrase. Encryption at rest does not protect against malware, keyloggers, a compromised operating system, or an attacker reading an already-unlocked process. Each CLI invocation asks for the master password; there is no misleading persistent unlocked session, so `lockr lock` has no retained key to clear.
 
 ## Privacy
 
