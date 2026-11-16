@@ -3,9 +3,19 @@
   "version": "1.0.0",
   "description": "A local-first encrypted command-line password manager",
   "type": "module",
-  "bin": { "lockr": "./dist/index.js" },
-  "files": ["dist", "README.md", "LICENSE", "SECURITY.md", "CHANGELOG.md"],
-  "engines": { "node": ">=20" },
+  "bin": {
+    "lockr": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "tsx src/index.ts",
@@ -13,9 +23,17 @@
     "check": "tsc --noEmit",
     "prepublishOnly": "npm run check && npm test && npm run build"
   },
-  "keywords": ["password-manager", "cli", "encryption", "local-first"],
+  "keywords": [
+    "password-manager",
+    "cli",
+    "encryption",
+    "local-first"
+  ],
   "license": "MIT",
-  "repository": { "type": "git", "url": "git+https://github.com/REPLACE_ME/lockr.git" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/REPLACE_ME/lockr.git"
+  },
   "dependencies": {
     "@inquirer/prompts": "^8.1.0",
     "@stablelib/xchacha20poly1305": "^2.0.1",
@@ -26,5 +44,9 @@
     "@types/node": "^24.10.1",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
+  },
+  "allowScripts": {
+    "argon2@0.44.0": true,
+    "esbuild@0.25.12": true
   }
 }
