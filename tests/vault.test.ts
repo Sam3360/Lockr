@@ -24,3 +24,12 @@ test("rejects master passwords shorter than six characters", async () => {
 test("changes the master password and invalidates the old one", async () => {
   const p = await path(), v = await Vault.create("old pass", p); await v.add(example); await v.changeMasterPassword("new pass!"); v.lock(); await assert.rejects(() => Vault.unlock("old pass", p)); const reopened = await Vault.unlock("new pass!", p); assert.equal(reopened.find("Example")?.username, "tester"); reopened.lock();
 });
+test("restores an authenticated encrypted backup after password rotation", async () => {
+  const p = await path(), backup = `${p}.backup`, v = await Vault.create("old pass", p);
+  await v.add(example); await v.changeMasterPassword("new pass!"); v.lock();
+  const backupBytes = await readFile(p); await writeFile(backup, backupBytes);
+  const checked = await Vault.unlockRaw("new pass!", await readFile(backup), backup); checked.lock();
+  const modified = await Vault.unlock("new pass!", p); await modified.remove("Example"); modified.lock();
+  await writeFile(p, backupBytes);
+  const restored = await Vault.unlock("new pass!", p); assert.equal(restored.find("Example")?.password, "not-a-real-secret"); restored.lock();
+});
