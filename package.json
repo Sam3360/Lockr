@@ -1,13 +1,21 @@
 {
   "name": "lockr",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A local-first encrypted command-line password manager",
+  "type": "module",
+  "bin": { "lockr": "./dist/index.js" },
+  "files": ["dist", "README.md", "LICENSE", "SECURITY.md", "CHANGELOG.md"],
+  "engines": { "node": ">=20" },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc -p tsconfig.json",
+    "start": "tsx src/index.ts",
+    "test": "tsx --test tests/**/*.test.ts",
+    "check": "tsc --noEmit",
+    "prepublishOnly": "npm run check && npm test && npm run build"
   },
-  "keywords": [],
-  "type": "commonjs",
+  "keywords": ["password-manager", "cli", "encryption", "local-first"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/REPLACE_ME/lockr.git" },
   "dependencies": {
     "@inquirer/prompts": "^8.1.0",
     "@stablelib/xchacha20poly1305": "^2.0.1",
