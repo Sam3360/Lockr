@@ -11,7 +11,7 @@ import { generatePassword } from "./passwords/generate.js";
 import { LockrError } from "./errors.js";
 
 const program = new Command();
-program.name("lockr").description("Local-first encrypted password manager").version("1.0.1");
+program.name("lockr").description("Local-first encrypted password manager").version("1.0.2");
 async function unlocked(): Promise<Vault> { return Vault.unlock(await authenticate()); }
 async function chooseMasterPassword(): Promise<string> {
   const first = await masterPassword("Create master password:"); const invalid = validateMasterPassword(first); if (invalid) throw new Error(invalid);

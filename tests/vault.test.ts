@@ -57,3 +57,7 @@ test("new-format vault remains readable as a v1 vault file", async () => {
   const envelope = JSON.parse((await readFile(p)).toString("utf8")); assert.equal(envelope.format, "lockr-vault"); assert.equal(envelope.version, 1); assert.equal(envelope.kdf.algorithm, "argon2id");
   const reopened = await Vault.unlock("compatibility", p); assert.equal(reopened.find("Example")?.username, "tester"); reopened.lock();
 });
+test("locking clears credential data from the active vault object", async () => {
+  const p = await path(), vault = await Vault.create("memory test", p); await vault.add(example); vault.lock();
+  assert.equal(vault.data.credentials.length, 0);
+});

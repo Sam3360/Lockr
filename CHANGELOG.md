@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.2 - 2026-11-19
+
+- Improved best-effort clearing of decrypted credential data when a vault is locked.
+- Added locked-vault cleanup regression coverage.
+- Clarified required scoped npm installation and Argon2 native-script approval.
+- Added v1.0.2 release-preparation notes and npm verification guidance.
+
 ## 1.0.1 - 2026-11-19
 
 - Added production-path backup and restore helpers, including authenticated backup verification before replacement.

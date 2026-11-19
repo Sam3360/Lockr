@@ -13,12 +13,14 @@ npm link
 lockr init
 ```
 
-Install the published package with:
+Install the published package with PowerShell:
 
-```bash
-npm install -g @sam3360/lockr
+```powershell
+npm install -g --allow-scripts=argon2 @sam3360/lockr
 lockr init
 ```
+
+`--allow-scripts=argon2` permits Argon2's native installation script to run. Lockr uses that dependency for Argon2id key derivation; it does not make network requests during normal operation after installation.
 
 ## Commands
 
@@ -63,5 +65,7 @@ npm run check
 npm test
 npm run build
 ```
+
+For release preparation, see [RELEASE_v1.0.2.md](RELEASE_v1.0.2.md). Do not publish without completing the checks listed there.
 
 Contributions should include focused tests and must not weaken authentication, encryption, filesystem safety, or privacy guarantees. Report security vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
