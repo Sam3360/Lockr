@@ -1,16 +1,17 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { basename, resolve } from "node:path";
+import { resolve } from "node:path";
 import { Vault } from "./vault/vault.js";
 import { appDataDir, vaultPath } from "./storage/paths.js";
-import { existsSafe, readSecure, atomicWrite } from "./storage/file.js";
+import { existsSafe } from "./storage/file.js";
+import { createEncryptedBackup, restoreEncryptedBackup } from "./vault/backup.js";
 import { authenticate, confirm, credentialInput, masterPassword } from "./prompts/index.js";
 import { passwordStrength, validateMasterPassword } from "./auth/master-password.js";
 import { generatePassword } from "./passwords/generate.js";
 import { LockrError } from "./errors.js";
 
 const program = new Command();
-program.name("lockr").description("Local-first encrypted password manager").version("1.0.0");
+program.name("lockr").description("Local-first encrypted password manager").version("1.0.1");
 async function unlocked(): Promise<Vault> { return Vault.unlock(await authenticate()); }
 async function chooseMasterPassword(): Promise<string> {
   const first = await masterPassword("Create master password:"); const invalid = validateMasterPassword(first); if (invalid) throw new Error(invalid);
@@ -37,8 +38,8 @@ program.command("search <query>").description("Search service, username, categor
 program.command("edit <service>").description("Edit a credential interactively").action(async service => { const v = await unlocked(); try { const existing = v.find(service); if (!existing) throw new Error("No matching credential was found."); const input = await credentialInput(existing); await v.update(service, input); console.log(`Updated ${input.service}.`); } finally { v.lock(); } });
 program.command("remove <service>").description("Remove a credential").action(async service => { const v = await unlocked(); try { if (await confirm({ message: `Permanently remove ${service}?`, default: false })) { await v.remove(service); console.log("Credential removed."); } else console.log("Cancelled."); } finally { v.lock(); } });
 program.command("generate").description("Generate a password without storing it").option("-l, --length <number>", "password length", "24").option("--no-upper", "exclude uppercase").option("--no-lower", "exclude lowercase").option("--no-numbers", "exclude numbers").option("--no-symbols", "exclude symbols").action(async options => { const generated = generatePassword({ length: Number(options.length), upper: options.upper, lower: options.lower, numbers: options.numbers, symbols: options.symbols }); if (await confirm({ message: "Reveal generated password?", default: true })) console.log(generated); else console.log("Password generated but not displayed."); });
-program.command("backup [path]").description("Copy the encrypted vault to a backup file").action(async path => { const v = await unlocked(); try { const target = resolve(path || `lockr-backup-${new Date().toISOString().slice(0, 10)}.lockr`); if (await existsSafe(target)) throw new Error("Backup destination already exists."); await atomicWrite(target, await readSecure(vaultPath())); console.log(`Encrypted backup created: ${target}`); } finally { v.lock(); } });
-program.command("restore <backup>").description("Restore an encrypted backup after verification").action(async backup => { const source = resolve(backup); const raw = await readSecure(source); const password = await authenticate(); const restored = await Vault.unlockRaw(password, raw, source); restored.lock(); if (!await confirm({ message: `Replace current vault with ${basename(source)}?`, default: false })) return console.log("Cancelled."); await atomicWrite(vaultPath(), raw); console.log("Backup restored."); });
+program.command("backup [path]").description("Copy the encrypted vault to a backup file").action(async path => { const v = await unlocked(); try { const target = await createEncryptedBackup(vaultPath(), path || `lockr-backup-${new Date().toISOString().slice(0, 10)}.lockr`); console.log(`Encrypted backup created: ${target}`); } finally { v.lock(); } });
+program.command("restore <backup>").description("Restore an encrypted backup after verification").action(async backup => { const password = await authenticate(); if (!await confirm({ message: `Replace the current vault with ${resolve(backup)}?`, default: false })) return console.log("Cancelled."); const restored = await restoreEncryptedBackup(password, backup, vaultPath()); console.log(`Backup restored from ${restored.name}.`); });
 program.action(async () => { if (await existsSafe(vaultPath())) console.log("Lockr vault found. Run 'lockr --help' to see commands."); else await program.parseAsync([process.argv[0], process.argv[1], "init"]); });
 program.configureOutput({ writeErr: str => process.stderr.write(str) });
 program.parseAsync().catch(error => { const safe = error instanceof LockrError ? error.message : error instanceof Error ? error.message : "Lockr failed safely."; console.error(`Error: ${safe}`); process.exitCode = 1; });

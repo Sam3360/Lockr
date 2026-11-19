@@ -13,7 +13,12 @@ npm link
 lockr init
 ```
 
-After publication, the intended installation is `npm install -g lockr`.
+Install the published package with:
+
+```bash
+npm install -g @sam3360/lockr
+lockr init
+```
 
 ## Commands
 
@@ -41,7 +46,7 @@ The complete credential payload—including credential metadata—is JSON-encryp
 
 Vault files are versioned and written atomically with restrictive permissions where the platform supports them. Lockr refuses vault-file symbolic links. Default locations are `%APPDATA%\\Lockr` on Windows, `~/Library/Application Support/Lockr` on macOS, and `$XDG_DATA_HOME/lockr` (or `~/.local/share/lockr`) on Linux. Set `LOCKR_DATA_DIR` for a local test or a deliberately chosen location.
 
-Backups are copies of the already encrypted vault; use `lockr restore` so the backup is authenticated before it replaces a vault. Keep the backup and master password separately.
+Backups are copies of the already encrypted vault; `lockr restore` authenticates the complete backup before replacing the current vault. A failed or malformed backup therefore leaves the current vault untouched. Keep the backup and master password separately.
 
 ## Security limits
 

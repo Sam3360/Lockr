@@ -4,6 +4,7 @@ import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Vault } from "../src/vault/vault.js";
+import { createEncryptedBackup, restoreEncryptedBackup } from "../src/vault/backup.js";
 
 async function path(): Promise<string> { return join(await mkdtemp(join(tmpdir(), "lockr-test-")), "vault.lockr"); }
 const example = { service: "Example", username: "tester", password: "not-a-real-secret", tags: ["test"] };
@@ -32,4 +33,27 @@ test("restores an authenticated encrypted backup after password rotation", async
   const modified = await Vault.unlock("new pass!", p); await modified.remove("Example"); modified.lock();
   await writeFile(p, backupBytes);
   const restored = await Vault.unlock("new pass!", p); assert.equal(restored.find("Example")?.password, "not-a-real-secret"); restored.lock();
+});
+test("production backup and restore preserves an encrypted vault", async () => {
+  const p = await path(), backup = `${p}.backup`, vault = await Vault.create("backup pass", p);
+  await vault.add(example); vault.lock(); await createEncryptedBackup(p, backup);
+  const changed = await Vault.unlock("backup pass", p); await changed.remove("Example"); changed.lock();
+  await restoreEncryptedBackup("backup pass", backup, p);
+  const restored = await Vault.unlock("backup pass", p); assert.equal(restored.find("Example")?.username, "tester"); restored.lock();
+});
+test("bad backup cannot replace an existing vault", async () => {
+  const p = await path(), bad = `${p}.bad`, vault = await Vault.create("backup pass", p); await vault.add(example); vault.lock();
+  await writeFile(bad, "not a Lockr vault"); await assert.rejects(() => restoreEncryptedBackup("backup pass", bad, p));
+  const unchanged = await Vault.unlock("backup pass", p); assert.equal(unchanged.find("Example")?.password, "not-a-real-secret"); unchanged.lock();
+});
+test("vault rejects duplicate, missing, and invalid service operations", async () => {
+  const p = await path(), vault = await Vault.create("input test", p); await vault.add(example);
+  await assert.rejects(() => vault.add(example)); await assert.rejects(() => vault.add({ ...example, service: "" }));
+  await assert.rejects(() => vault.update("missing", { username: "nobody" })); await assert.rejects(() => vault.remove("missing"));
+  await assert.rejects(() => vault.update("Example", { service: "" })); vault.lock();
+});
+test("new-format vault remains readable as a v1 vault file", async () => {
+  const p = await path(), vault = await Vault.create("compatibility", p); await vault.add(example); vault.lock();
+  const envelope = JSON.parse((await readFile(p)).toString("utf8")); assert.equal(envelope.format, "lockr-vault"); assert.equal(envelope.version, 1); assert.equal(envelope.kdf.algorithm, "argon2id");
+  const reopened = await Vault.unlock("compatibility", p); assert.equal(reopened.find("Example")?.username, "tester"); reopened.lock();
 });

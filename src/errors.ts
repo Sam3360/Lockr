@@ -9,6 +9,7 @@ export const errors = {
   unsupported: () => new LockrError("This vault version is not supported by this Lockr version.", "UNSUPPORTED_VAULT"),
   symlink: () => new LockrError("Refusing to access a vault through a symbolic link.", "UNSAFE_PATH"),
   invalidMasterPassword: (message: string) => new LockrError(message, "INVALID_MASTER_PASSWORD"),
+  invalidCredential: () => new LockrError("Service name is required and must be 256 characters or fewer.", "INVALID_CREDENTIAL"),
   duplicate: () => new LockrError("A credential with that service name already exists.", "DUPLICATE"),
   missing: () => new LockrError("No matching credential was found.", "MISSING")
 };
