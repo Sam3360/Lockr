@@ -1,5 +1,5 @@
 {
-  "name": "lockr",
+  "name": "@sam3360/lockr",
   "version": "1.0.0",
   "description": "A local-first encrypted command-line password manager",
   "type": "module",
